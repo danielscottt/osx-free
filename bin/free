@@ -17,13 +17,13 @@ end
  
 def get_data
   raw_data = {}
-  mem = `vm_stat | sed s/\\ //g | tail -n+2 | head -n4`.split("\n")
+  mem      = `vm_stat | sed s/\\ //g | tail -n+2 | head -n4`.split("\n")
   mem.each do |m|
     m = m.split(':')
     raw_data[m[0].gsub(/Pages/, '').to_sym] = m[1].chomp('.').to_i
   end
   raw_data[:available] = raw_data.values.reduce(:+)
-  raw_data[:used]  = raw_data[:active] + raw_data[:inactive] + raw_data[:speculative]
+  raw_data[:used]      = raw_data[:active] + raw_data[:inactive] + raw_data[:speculative]
   raw_data.each do |k, v|
     if @opts[:gb]
       raw_data[k] = v * 4096 / 1024 / 1024 / 1024
@@ -49,8 +49,8 @@ end
  
 def display
   begin
-    @fm ||= Formatador.new
-    data = get_data
+    @fm       ||= Formatador.new
+    data        = get_data
     pretty_data = "[green]Used:[/] #{data[:used]}  " + \
                   "[green]Free:[/] #{data[:free]}  " + \
                   "[green]Available:[/] #{data[:available]} #{"\n" unless @opts[:watch] || @opts[:'show-units']}"

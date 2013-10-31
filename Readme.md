@@ -14,3 +14,9 @@ Usage:
      --version, -v:   Print version and exit
         --help, -h:   Show this message
 ```
+
+##Installation
+
+```bash
+$ gem install osx-free
+```
