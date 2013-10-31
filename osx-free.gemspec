@@ -1,6 +1,7 @@
 Gem::Specification.new do |gem|
   gem.name          = 'osx-free'
   gem.version       = '0.0.1'
+  gem.license       = 'MIT'
   gem.authors       = ['dan pittman', 'Nicholas Weaver']
   gem.email         = ['danielscottt@gmail.com']
   gem.description   = %q{Because OS X Doesn't have a `free` command}
