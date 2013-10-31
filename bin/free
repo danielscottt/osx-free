@@ -1,0 +1,71 @@
+#! /usr/bin/env ruby
+ 
+require 'trollop'
+require 'formatador'
+ 
+@opts = Trollop::options do
+  version "OS X free command 0.0.1 -- dan pittman 2013"
+  banner <<-EOS
+Usage:
+  free [options]
+EOS
+  opt :watch, "watch command", :default => false
+  opt :gb, "view in GBs", :default => false
+  opt :mb, "view in MBs", :default => false
+  opt :'show-units', "show unit size", :default => false
+end
+ 
+def get_data
+  raw_data = {}
+  mem = `vm_stat | sed s/\\ //g | tail -n+2 | head -n4`.split("\n")
+  mem.each do |m|
+    m = m.split(':')
+    raw_data[m[0].gsub(/Pages/, '').to_sym] = m[1].chomp('.').to_i
+  end
+  raw_data[:available] = raw_data.values.reduce(:+)
+  raw_data[:used]  = raw_data[:active] + raw_data[:inactive] + raw_data[:speculative]
+  raw_data.each do |k, v|
+    if @opts[:gb]
+      raw_data[k] = v * 4096 / 1024 / 1024 / 1024
+    elsif @opts[:mb]
+      raw_data[k] = v * 4096 / 1024 / 1024
+    else
+      raw_data[k] = v
+    end
+  end
+  raw_data
+end
+ 
+def unit_size
+  if @opts[:gb]
+    'GBytes'
+  elsif @opts[:mb]
+    'MBytes'
+  else
+    'Pages (page size of 4096 bytes)'
+  end 
+end
+ 
+ 
+def display
+  begin
+    @fm ||= Formatador.new
+    data = get_data
+    pretty_data = "[green]Used:[/] #{data[:used]}  " + \
+                  "[green]Free:[/] #{data[:free]}  " + \
+                  "[green]Available:[/] #{data[:available]} #{"\n" unless @opts[:watch] || @opts[:'show-units']}"
+    if @opts[:'show-units']
+      pretty_data = pretty_data + "[yellow]Units:[/] #{unit_size}#{"\n" unless @opts[:watch]}"
+    end
+    @fm.redisplay(pretty_data)
+    if @opts[:watch]
+      sleep 2
+      display
+    end
+  rescue Interrupt
+    puts "\n"
+    exit 0
+  end
+end
+ 
+display
