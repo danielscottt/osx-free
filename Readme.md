@@ -1,5 +1,7 @@
-Free Command for OSX
+Free
 ====================
+
+_Because OS X doesn't have a_ `free` _command_
 
 ```bash
 $ free
